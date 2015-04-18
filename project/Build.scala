@@ -21,6 +21,7 @@ object ValiDataBuild extends Build {
     			publishMavenStyle := true,
         		libraryDependencies ++= libraryClasspath
     		)
+			.scoverageSettings()
 
     lazy val libraryClasspath = 
     	scalaz ++

@@ -1,5 +1,6 @@
 import sbt.Keys._
 import sbt._
+import scoverage.ScoverageSbtPlugin
 
 object Common {
   lazy val commonResolvers = Seq(
@@ -32,5 +33,14 @@ object Common {
     def atRuntime = self map { _ % "runtime" }
     def provided = self map { _ % "provided" }
     def force = self map { _.force() }
+  }
+
+  implicit class PumpedProject(val self: Project) extends AnyVal {
+    def scoverageSettings(minimumCoverage: Int = 50) =
+      self.settings(
+        ScoverageSbtPlugin.ScoverageKeys.coverageMinimum := minimumCoverage,
+        ScoverageSbtPlugin.ScoverageKeys.coverageFailOnMinimum := true,
+        ScoverageSbtPlugin.ScoverageKeys.coverageHighlighting := false
+      )
   }
 }
