@@ -6,6 +6,6 @@ trait TypeValidationDSL[Type] extends TypeValidationSupport {
 
   protected final def it(implicit classTag: ClassTag[Type]) = entity[Type]
 
-  protected def field(description: String) = typeProperty[Type](description)
+  protected def property(description: String) = typeProperty[Type](description)
 }
 

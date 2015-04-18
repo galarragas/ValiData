@@ -51,4 +51,11 @@ package object validate {
     def apply(input: T): ValidationResult[T] = self(input)
   }
 
+  @implicitNotFound(msg = "Unable to find Validation for data type {T}")
+  implicit class ValidatableAny[T : DataValidation ](obj: T) {
+    def validated: ValidationResult[T] = {
+      val validation = implicitly[DataValidation[T]]
+      validation(obj)
+    }
+  }
 }

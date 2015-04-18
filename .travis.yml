@@ -4,4 +4,4 @@ scala:
 - 2.10.4
 jdk:
 - openjdk6
-script: "sbt ++$TRAVIS_SCALA_VERSION scoverage test"
+script: "sbt ++$TRAVIS_SCALA_VERSION coverage test coverageReport"

@@ -9,7 +9,6 @@ trait TypeValidationSupport extends ValidationPrimitives {
 
   type PropertyExtractor[OwningEntityType, PropertyType] = OwningEntityType => PropertyType
 
-
   case class Property[OwningEntityType, PropertyType](propertyDescription: String,  extractor: PropertyExtractor[OwningEntityType, PropertyType]) {
     private def combineValidationMessage(validation: ValidationResult[PropertyType]): ValidationResult[PropertyType] = {
       validation leftMap { assertionDescriptions: NonEmptyList[String] =>

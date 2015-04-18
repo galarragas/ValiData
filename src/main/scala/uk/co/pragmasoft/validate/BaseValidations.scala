@@ -11,7 +11,7 @@ trait BaseValidations extends ValidationPrimitives {
 
   def satisfyCriteria[T](failureDescription: String)(criteria: T => Boolean): DataValidation[T] = (value: T) => {
     if(criteria(value))
-      ValidationSuccess(value)
+      validationSuccess(value)
     else
       failWithMessage(failureDescription)
   }
@@ -46,13 +46,13 @@ trait BaseValidations extends ValidationPrimitives {
   }
 
   def all[T]( validation: DataValidation[T] ): DataValidation[Iterable[T]] = (value: Iterable[T]) => {
-    value.foldLeft(ValidationSuccess(value)) {  (validationStatus, elem) =>
+    value.foldLeft(validationSuccess(value)) {  (validationStatus, elem) =>
       (validationStatus |@| validation(elem)) { (_, _) => value }
     }
   }
 
   def content[T]( validation: DataValidation[T] ): DataValidation[Option[T]] = (maybeValue: Option[T]) =>  maybeValue match {
-    case None => ValidationSuccess(maybeValue)
+    case None => validationSuccess(maybeValue)
 
     case Some(value) => validation(value) map { result => Some(result) }
   }
@@ -65,13 +65,13 @@ trait BaseValidations extends ValidationPrimitives {
     if (invalidItemsFound.isDefined)
       failWithMessage(s"match regex '$regex' exactly once for all elements")
     else
-      ValidationSuccess(value)
+      validationSuccess(value)
   }
 
   def beAValidRegexString(): DataValidation[String] = (value: String) => {
     try {
       value.r
-      ValidationSuccess(value)
+      validationSuccess(value)
     } catch {
       case (e: PatternSyntaxException) =>
         failWithMessage("Your regex does not appear to be valid: " + e.getMessage)  // expected occasionally
@@ -90,7 +90,7 @@ trait BaseValidations extends ValidationPrimitives {
       case (valueA, Some(valueB) ) if(valueA != valueB) =>
         failWithMessage(errorMsgNoMatch)
       case _ =>
-        ValidationSuccess(value)
+        validationSuccess(value)
     }
   }
 

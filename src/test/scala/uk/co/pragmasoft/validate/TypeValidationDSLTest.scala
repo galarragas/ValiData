@@ -14,21 +14,21 @@ class TypeValidationDSLTest extends FlatSpec with Matchers {
     if (value.isEmpty)
       failWithMessage("not be empty")
     else
-      ValidationSuccess(value)
+      validationSuccess(value)
   }
 
   def prop1EmptyIfProperty2SaysSo: DataValidationFunc[(String, Boolean)] = (value: (String, Boolean)) => {
     if (value._1.isEmpty != value._2)
       failWithMessage("be empty if specified in the associated flag")
     else
-      ValidationSuccess(value)
+      validationSuccess(value)
   }
 
   def prop1EmptyIfProperty2SaysSoEntity: DataValidationFunc[TestClass] = (value: TestClass) => {
     if (value.property1.isEmpty != value.property2)
       failWithMessage("be empty if specified in the associated flag")
     else
-      ValidationSuccess(value)
+      validationSuccess(value)
   }
 
   behavior of "A property validation expression"
@@ -36,14 +36,14 @@ class TypeValidationDSLTest extends FlatSpec with Matchers {
   it should "create a validation for given extractor" in {
     val validation = typeProperty[TestClass] ("Property1") { _.property1 } must stringPropertyNotEmptyAssertion
 
-    validation(TestClass("not empty", false)) should be(ValidationSuccess(TestClass("not empty", false)))
+    validation(TestClass("not empty", false)) should be(validationSuccess(TestClass("not empty", false)))
     validation(TestClass("", false)).isFailure should be(true)
   }
 
   it should "create a validation for given typed extractor" in {
     val validation = typeProperty ("Property1") { obj: TestClass => obj.property1 } must stringPropertyNotEmptyAssertion
 
-    validation(TestClass("not empty", false)) should be(ValidationSuccess(TestClass("not empty", false)))
+    validation(TestClass("not empty", false)) should be(validationSuccess(TestClass("not empty", false)))
     validation(TestClass("", false)).isFailure should be(true)
   }
 
@@ -52,7 +52,7 @@ class TypeValidationDSLTest extends FlatSpec with Matchers {
       _.property1
     } must stringPropertyNotEmptyAssertion
 
-    validation(TestClass("not empty", false)) should be(ValidationSuccess(TestClass("not empty", false)))
+    validation(TestClass("not empty", false)) should be(validationSuccess(TestClass("not empty", false)))
     validation(TestClass("", false)).isFailure should be(true)
   }
 

@@ -5,7 +5,7 @@ import Scalaz._
 
 
 trait ValidationPrimitives {
-  def ValidationSuccess[T](value: T): ValidationResult[T] = value.successNel[String]
+  def validationSuccess[T](value: T): ValidationResult[T] = value.successNel[String]
 
   def failWithMessage[T](errorMsg: String): ValidationResult[T] = errorMsg.failureNel[T]
 
@@ -13,7 +13,7 @@ trait ValidationPrimitives {
     def asValidationFailure = failWithMessage(str)
   }
 
-  def NoValidation[T]: DataValidation[T] = (input: T) => ValidationSuccess[T](input)
+  def NoValidation[T]: DataValidation[T] = (input: T) => validationSuccess[T](input)
 
   def requiresAll[T](validations: DataValidation[T]*): DataValidation[T] = (input: T) => {
     val _validationResult: ValidationResult[T] =

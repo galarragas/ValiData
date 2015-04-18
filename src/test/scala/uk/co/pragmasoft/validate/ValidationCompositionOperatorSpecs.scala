@@ -16,7 +16,7 @@ class ValidationCompositionOperatorSpecs extends FlatSpec with Matchers with Val
   }
 
   it should "Succed if all validations succeed" in {
-    (successValidation and successValidation)("input") should be(ValidationSuccess("input"))
+    (successValidation and successValidation)("input") should be(validationSuccess("input"))
   }
 
 
@@ -27,15 +27,15 @@ class ValidationCompositionOperatorSpecs extends FlatSpec with Matchers with Val
   }
 
   it should "Succed if any of the validations succeed (T or T)" in {
-    (successValidation or successValidation)("input") should be(ValidationSuccess("input"))
+    (successValidation or successValidation)("input") should be(validationSuccess("input"))
   }
 
   it should "Succed if any of the validations succeed (T or F)" in {
-    (successValidation or failureValidation)("input") should be(ValidationSuccess("input"))
+    (successValidation or failureValidation)("input") should be(validationSuccess("input"))
   }
 
   it should "Succed if any of the validations succeed (F or T)" in {
-    (failureValidation or successValidation)("input") should be(ValidationSuccess("input"))
+    (failureValidation or successValidation)("input") should be(validationSuccess("input"))
   }
 
   behavior of "withQuickFAil"

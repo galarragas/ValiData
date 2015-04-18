@@ -18,7 +18,7 @@ class BaseValidationsTest extends WordSpec with Matchers with TypeValidationSupp
     val validation = stringProp must beNotEmpty
 
     "succeed for non empty strings" in {
-      validation(StringPropTestClass("non empty")) should be(ValidationSuccess(StringPropTestClass("non empty")))
+      validation(StringPropTestClass("non empty")) should be(validationSuccess(StringPropTestClass("non empty")))
     }
 
     "fail for empty string properties" in {
@@ -31,7 +31,7 @@ class BaseValidationsTest extends WordSpec with Matchers with TypeValidationSupp
     val validation = seqStringProp must beNotEmptyIterable
 
     "succeed for non empty iterables" in {
-      validation(SeqStringClass( Seq("a") )) should be (ValidationSuccess(SeqStringClass( Seq("a") )))
+      validation(SeqStringClass( Seq("a") )) should be (validationSuccess(SeqStringClass( Seq("a") )))
     }
 
     "fail for empty iterables" in {
@@ -47,7 +47,7 @@ class BaseValidationsTest extends WordSpec with Matchers with TypeValidationSupp
 
     "succeed for strings matching the regex exactly once" in {
       val testVal: StringPropTestClass = StringPropTestClass("123BODY")
-      validation(testVal) should be(ValidationSuccess(testVal))
+      validation(testVal) should be(validationSuccess(testVal))
     }
 
     "fail for string non matching the regex" in {
@@ -66,8 +66,8 @@ class BaseValidationsTest extends WordSpec with Matchers with TypeValidationSupp
     val validation = seqStringProp must allMatchRegexOnce(regex)
 
     "succeed for strings matching the regex exactly once" in {
-      validation(SeqStringClass( Seq("123BODY") )) should be(ValidationSuccess(SeqStringClass( Seq("123BODY") )))
-      validation(SeqStringClass( Seq("123BODY", "456BODY") )) should be(ValidationSuccess(SeqStringClass( Seq("123BODY", "456BODY") )))
+      validation(SeqStringClass( Seq("123BODY") )) should be(validationSuccess(SeqStringClass( Seq("123BODY") )))
+      validation(SeqStringClass( Seq("123BODY", "456BODY") )) should be(validationSuccess(SeqStringClass( Seq("123BODY", "456BODY") )))
     }
 
     "fail for string non matching the regex" in {
