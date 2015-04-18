@@ -9,29 +9,41 @@ trait TypeValidationSupport extends ValidationPrimitives {
 
   type PropertyExtractor[OwningEntityType, PropertyType] = OwningEntityType => PropertyType
 
-  case class Property[OwningEntityType, PropertyType](propertyDescription: String, extractor: PropertyExtractor[OwningEntityType, PropertyType]) {
-    private def combineValidationMessage(validation: ValidationResult): ValidationResult = {
+
+  case class Property[OwningEntityType, PropertyType](propertyDescription: String,  extractor: PropertyExtractor[OwningEntityType, PropertyType]) {
+    private def combineValidationMessage(validation: ValidationResult[PropertyType]): ValidationResult[PropertyType] = {
       validation leftMap { assertionDescriptions: NonEmptyList[String] =>
         assertionDescriptions map { assertionDescription =>  s"$propertyDescription must $assertionDescription" }
       }
     }
 
     def must( assertion: DataValidation[PropertyType], assertions: DataValidation[PropertyType]* ): DataValidation[OwningEntityType] = {
-      extractor andThen requiresAll( (assertion :: assertions.toList):_* ).self andThen combineValidationMessage
+      val validateProperty = requiresAll( (assertion :: assertions.toList):_* ).self andThen combineValidationMessage
+
+      (entityValue: OwningEntityType) => {
+        val propertyValue = extractor(entityValue)
+
+        validateProperty(propertyValue) map { _ => entityValue }
+      }
     }
   }
 
-  case class PartiallyDefinedTypeProperty[Type](description: String) {
+  case class UnaccessibleNamedProperty[Type](description: String) {
     def extractedWith[PropertyType](extractor: Type => PropertyType) = Property[Type, PropertyType](description, extractor)
     def apply[PropertyType](extractor: Type => PropertyType) = extractedWith[PropertyType](extractor)
   }
 
-  def typeProperty[EntityType](description: String) = PartiallyDefinedTypeProperty[EntityType](description)
+  case class ReadOnlyPropertyPropertyType(description: String)
+
+  def typeProperty[EntityType](description: String) = UnaccessibleNamedProperty[EntityType](description)
   
   def entity[EntityType : ClassTag] = {
     val entityClass = classTag[EntityType].runtimeClass
 
-    Property[EntityType, EntityType](propertyDescription = s"Entity ${entityClass.getSimpleName}", { entity: EntityType => entity } )
+    Property[EntityType, EntityType](
+      propertyDescription = s"Entity ${entityClass.getSimpleName}",
+      extractor = { entity: EntityType => entity }
+    )
   }
 }
 

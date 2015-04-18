@@ -5,18 +5,21 @@ import scalaz._
 import Scalaz._
 
 package object validate {
-  type ValidationResult = ValidationNel[String, Unit]
-  type DataValidationFunc[T] = T => ValidationResult
+  type ValidationResult[T] = ValidationNel[String, T]
+  type DataValidationFunc[T] = T => ValidationResult[T]
+
+  protected[validate] def pickFirst[T](first: T, second: T): T = first
 
   @implicitNotFound(msg = "Unable to find Validation for data type {T}")
-  implicit class DataValidation[-T]( val self: DataValidationFunc[T] ) extends AnyVal {
-    private def concatValidationResults( v1: => ValidationResult,  v2: => ValidationResult): ValidationResult = (v1 |@| v2) { (u1, u2) => () }
+  implicit class DataValidation[T]( val self: DataValidationFunc[T] ) extends AnyVal {
+    private def concatValidationResults[T]( v1: => ValidationResult[T],  v2: => ValidationResult[T])(composeSuccess: (T, T) => T): ValidationResult[T] =
+      (v1 |@| v2) { composeSuccess }
 
-    def and[K <: T]( other: DataValidation[K] ): DataValidation[K] =  (input: K) => {
-      concatValidationResults(self(input), other.self(input))
+    def and( other: DataValidation[T] ): DataValidation[T] =  (input: T) => {
+      concatValidationResults(self(input), other.self(input)) { (_, _) => input }
     }
 
-    def or[K <: T]( other: DataValidation[K] ): DataValidation[K] =  (input: K) => {
+    def or( other: DataValidation[T] ): DataValidation[T] =  (input: T) => {
       val myValidation = self(input)
 
       if( myValidation.isSuccess ) {
@@ -27,25 +30,25 @@ package object validate {
         if(otherValidation.isSuccess) {
           otherValidation
         } else {
-          concatValidationResults(myValidation, otherValidation)
+          concatValidationResults(myValidation, otherValidation){ (_, _) => input }
         }
       }
     }
 
     def withFailFast = QuickFailingDataValidation(self)
 
-    def apply(input: T): ValidationResult = self(input)
+    def apply(input: T): ValidationResult[T] = self(input)
   }
 
-  case class QuickFailingDataValidation[-T]( self: DataValidationFunc[T] )  {
-    def and[K <: T]( other: DataValidation[K] ): DataValidation[K] =  (input: K) => {
+  case class QuickFailingDataValidation[T]( self: DataValidationFunc[T] )  {
+    def and( other: DataValidation[T] ): DataValidation[T] =  (input: T) => {
       self(input) match {
         case Success(_) => other(input)
         case quickFailure@Failure(_) => quickFailure
       }
     }
 
-    def apply(input: T): ValidationResult = self(input)
+    def apply(input: T): ValidationResult[T] = self(input)
   }
 
 }

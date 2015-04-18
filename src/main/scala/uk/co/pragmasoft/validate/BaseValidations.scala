@@ -8,16 +8,17 @@ import scalaz._
 import Scalaz._
 
 trait BaseValidations extends ValidationPrimitives {
+
   def satisfyCriteria[T](failureDescription: String)(criteria: T => Boolean): DataValidation[T] = (value: T) => {
     if(criteria(value))
-      VALIDATION_SUCCESS
+      ValidationSuccess(value)
     else
       failWithMessage(failureDescription)
   }
 
   def beNotEmpty: DataValidation[String] = satisfyCriteria("not be empty") { !_.isEmpty }
 
-  def beNotEmptyIterable: DataValidation[Iterable[_]] = satisfyCriteria("be a non empty iterable") { !_.isEmpty }
+  def beNotEmptyIterable[T <: Iterable[_]]: DataValidation[T] = satisfyCriteria("be a non empty iterable") { !_.isEmpty }
 
   def beDefined: DataValidation[Option[_]] = satisfyCriteria("not be empty")  { _.isDefined }
 
@@ -45,14 +46,18 @@ trait BaseValidations extends ValidationPrimitives {
   }
 
   def all[T]( validation: DataValidation[T] ): DataValidation[Iterable[T]] = (value: Iterable[T]) => {
-    value.foldLeft(VALIDATION_SUCCESS) {  (validationStatus, elem) =>
-      (validationStatus |@| validation(elem)) { (u1, u2) => () }
+    value.foldLeft(ValidationSuccess(value)) {  (validationStatus, elem) =>
+      (validationStatus |@| validation(elem)) { (_, _) => value }
     }
   }
 
-  def content[T]( validation: DataValidation[T] ): DataValidation[Option[T]] = (value: Option[T]) => all( validation )(value.toList)
+  def content[T]( validation: DataValidation[T] ): DataValidation[Option[T]] = (maybeValue: Option[T]) =>  maybeValue match {
+    case None => ValidationSuccess(maybeValue)
 
-  def allMatchRegexOnce(regex: Regex): DataValidation[Iterable[String]] = (value: Iterable[String]) => {
+    case Some(value) => validation(value) map { result => Some(result) }
+  }
+
+  def allMatchRegexOnce[T <: Iterable[String]](regex: Regex): DataValidation[T] = (value: T) => {
     val invalidItemsFound = value find { item =>
       regex.findAllIn(item).length != 1
     }
@@ -60,13 +65,13 @@ trait BaseValidations extends ValidationPrimitives {
     if (invalidItemsFound.isDefined)
       failWithMessage(s"match regex '$regex' exactly once for all elements")
     else
-      VALIDATION_SUCCESS
+      ValidationSuccess(value)
   }
 
   def beAValidRegexString(): DataValidation[String] = (value: String) => {
     try {
       value.r
-      VALIDATION_SUCCESS
+      ValidationSuccess(value)
     } catch {
       case (e: PatternSyntaxException) =>
         failWithMessage("Your regex does not appear to be valid: " + e.getMessage)  // expected occasionally
@@ -85,7 +90,7 @@ trait BaseValidations extends ValidationPrimitives {
       case (valueA, Some(valueB) ) if(valueA != valueB) =>
         failWithMessage(errorMsgNoMatch)
       case _ =>
-        VALIDATION_SUCCESS
+        ValidationSuccess(value)
     }
   }
 

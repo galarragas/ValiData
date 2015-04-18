@@ -5,23 +5,21 @@ import Scalaz._
 
 
 trait ValidationPrimitives {
-  lazy val VALIDATION_SUCCESS: ValidationResult = ().successNel[String]
+  def ValidationSuccess[T](value: T): ValidationResult[T] = value.successNel[String]
 
-  def failWithMessage(errorMsg: String): ValidationResult = errorMsg.failureNel[Unit]
+  def failWithMessage[T](errorMsg: String): ValidationResult[T] = errorMsg.failureNel[T]
 
   implicit class PumpedString(val str: String) extends AnyRef {
     def asValidationFailure = failWithMessage(str)
   }
 
-  def NO_VALIDATION: DataValidation[Any] = (value: Any) => {
-    VALIDATION_SUCCESS
-  }
+  def NoValidation[T]: DataValidation[T] = (input: T) => ValidationSuccess[T](input)
 
   def requiresAll[T](validations: DataValidation[T]*): DataValidation[T] = (input: T) => {
-    val _validationResult: ValidationResult =
+    val _validationResult: ValidationResult[T] =
       validations map {
         _.self(input)
-      } reduce { (v1, v2) => (v1 |@| v2) { (u1, u2) => () } }
+      } reduce { (v1, v2) => (v1 |@| v2) { (_, _) => input } }
 
     _validationResult
   }

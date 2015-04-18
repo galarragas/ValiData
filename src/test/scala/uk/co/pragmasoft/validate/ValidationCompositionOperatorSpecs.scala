@@ -6,8 +6,8 @@ import Scalaz._
 
 class ValidationCompositionOperatorSpecs extends FlatSpec with Matchers with ValidationPrimitives {
 
-  val successValidation: DataValidation[String] = (in: String) => { ().successNel[String]  }
-  val failureValidation: DataValidation[String] = (in: String) => { s"$in is failing".failureNel[Unit]  }
+  val successValidation: DataValidation[String] = (in: String) => { in.successNel[String]  }
+  val failureValidation: DataValidation[String] = (in: String) => { s"$in is failing".failureNel[String]  }
 
   behavior of "The AND operator on DataValidations"
 
@@ -16,7 +16,7 @@ class ValidationCompositionOperatorSpecs extends FlatSpec with Matchers with Val
   }
 
   it should "Succed if all validations succeed" in {
-    (successValidation and successValidation)("input") should be(VALIDATION_SUCCESS)
+    (successValidation and successValidation)("input") should be(ValidationSuccess("input"))
   }
 
 
@@ -27,15 +27,15 @@ class ValidationCompositionOperatorSpecs extends FlatSpec with Matchers with Val
   }
 
   it should "Succed if any of the validations succeed (T or T)" in {
-    (successValidation or successValidation)("input") should be(VALIDATION_SUCCESS)
+    (successValidation or successValidation)("input") should be(ValidationSuccess("input"))
   }
 
   it should "Succed if any of the validations succeed (T or F)" in {
-    (successValidation or failureValidation)("input") should be(VALIDATION_SUCCESS)
+    (successValidation or failureValidation)("input") should be(ValidationSuccess("input"))
   }
 
   it should "Succed if any of the validations succeed (F or T)" in {
-    (failureValidation or successValidation)("input") should be(VALIDATION_SUCCESS)
+    (failureValidation or successValidation)("input") should be(ValidationSuccess("input"))
   }
 
   behavior of "withQuickFAil"

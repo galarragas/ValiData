@@ -14,21 +14,21 @@ class TypeValidationDSLTest extends FlatSpec with Matchers {
     if (value.isEmpty)
       failWithMessage("not be empty")
     else
-      VALIDATION_SUCCESS
+      ValidationSuccess(value)
   }
 
   def prop1EmptyIfProperty2SaysSo: DataValidationFunc[(String, Boolean)] = (value: (String, Boolean)) => {
     if (value._1.isEmpty != value._2)
       failWithMessage("be empty if specified in the associated flag")
     else
-      VALIDATION_SUCCESS
+      ValidationSuccess(value)
   }
 
   def prop1EmptyIfProperty2SaysSoEntity: DataValidationFunc[TestClass] = (value: TestClass) => {
     if (value.property1.isEmpty != value.property2)
       failWithMessage("be empty if specified in the associated flag")
     else
-      VALIDATION_SUCCESS
+      ValidationSuccess(value)
   }
 
   behavior of "A property validation expression"
@@ -36,14 +36,14 @@ class TypeValidationDSLTest extends FlatSpec with Matchers {
   it should "create a validation for given extractor" in {
     val validation = typeProperty[TestClass] ("Property1") { _.property1 } must stringPropertyNotEmptyAssertion
 
-    validation(TestClass("not empty", false)) should be(VALIDATION_SUCCESS)
+    validation(TestClass("not empty", false)) should be(ValidationSuccess(TestClass("not empty", false)))
     validation(TestClass("", false)).isFailure should be(true)
   }
 
   it should "create a validation for given typed extractor" in {
     val validation = typeProperty ("Property1") { obj: TestClass => obj.property1 } must stringPropertyNotEmptyAssertion
 
-    validation(TestClass("not empty", false)) should be(VALIDATION_SUCCESS)
+    validation(TestClass("not empty", false)) should be(ValidationSuccess(TestClass("not empty", false)))
     validation(TestClass("", false)).isFailure should be(true)
   }
 
@@ -52,14 +52,14 @@ class TypeValidationDSLTest extends FlatSpec with Matchers {
       _.property1
     } must stringPropertyNotEmptyAssertion
 
-    validation(TestClass("not empty", false)) should be(VALIDATION_SUCCESS)
+    validation(TestClass("not empty", false)) should be(ValidationSuccess(TestClass("not empty", false)))
     validation(TestClass("", false)).isFailure should be(true)
   }
 
   it should "support compact definition" in {
     val validation = typeProperty[TestClass] ("Property1") { _.property1 } must stringPropertyNotEmptyAssertion
 
-    validation(TestClass("not empty", false)) should be(VALIDATION_SUCCESS)
+    validation(TestClass("not empty", false)).isSuccess should be(true)
     validation(TestClass("", false)).isFailure should be(true)
   }
 
@@ -93,14 +93,14 @@ class TypeValidationDSLTest extends FlatSpec with Matchers {
   it should "support entity validation" in {
     val validation = entity[TestClass] must prop1EmptyIfProperty2SaysSoEntity
 
-    validation(TestClass("", true)) should be(VALIDATION_SUCCESS)
+    validation(TestClass("", true)).isSuccess should be (true)
     validation(TestClass("", false)).isFailure should be(true)
   }
 
   it should "support complex property validation" in {
     val validation = typeProperty("Complex") { obj: TestClass => (obj.property1, obj.property2) } must prop1EmptyIfProperty2SaysSo
 
-    validation(TestClass("", true)) should be(VALIDATION_SUCCESS)
+    validation(TestClass("", true)).isSuccess should be (true)
     validation(TestClass("", false)).isFailure should be(true)
   }
 }
