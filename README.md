@@ -5,7 +5,7 @@
 Simple Data Validation Framework in Scala
 ValiData allows you to write Scalaz based validations using an expressive and flexible DSL.
 
-## How Does It Looks Like
+## How Does It Look Like
 
 You can define a type validator for your class placing assertions on each of its attributes, on a group of its attributes or the whole class 
 
@@ -43,7 +43,7 @@ That will return you either: the input object wrapped in a Scalaz `Validation.su
 To read more about Scalaz Validations please have a look at [the learning ScalaZ section on them](http://eed3si9n.com/learning-scalaz/Validation.html)
 
 
-### Writing a validation
+### Writing a Validation
 
 To generate a type validator you usually combine a set of validation on the type sub-parts such as type properties.
 
@@ -131,7 +131,6 @@ You have to follow Monocle documentation on how to enable the Macro based Lenses
   }
  
 ```
-
 
 #### Composing validations
 
