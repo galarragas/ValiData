@@ -1,4 +1,4 @@
-![Image](./validata.png?raw=true)
+![Image](./ValiData.png?raw=true)
 
 [![Build Status](https://travis-ci.org/galarragas/ValiData.svg)](http://travis-ci.org/galarragas/ValiData)
 
