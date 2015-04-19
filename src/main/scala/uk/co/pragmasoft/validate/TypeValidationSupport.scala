@@ -16,7 +16,7 @@ trait TypeValidationSupport extends ValidationPrimitives {
       }
     }
 
-    def must( assertion: DataValidation[PropertyType], assertions: DataValidation[PropertyType]* ): DataValidation[OwningEntityType] = {
+    def must( assertion: DataValidationFunction[PropertyType], assertions: DataValidationFunction[PropertyType]* ): DataValidation[OwningEntityType] = {
       val validateProperty = requiresAll( (assertion :: assertions.toList):_* ).self andThen combineValidationMessage
 
       (entityValue: OwningEntityType) => {
@@ -28,8 +28,8 @@ trait TypeValidationSupport extends ValidationPrimitives {
   }
 
   case class UnaccessibleNamedProperty[Type](description: String) {
-    def extractedWith[PropertyType](extractor: Type => PropertyType) = Property[Type, PropertyType](description, extractor)
-    def apply[PropertyType](extractor: Type => PropertyType) = extractedWith[PropertyType](extractor)
+    def definedBy[PropertyType](extractor: Type => PropertyType) = Property[Type, PropertyType](description, extractor)
+    def apply[PropertyType](extractor: Type => PropertyType) = definedBy[PropertyType](extractor)
   }
 
   case class ReadOnlyPropertyPropertyType(description: String)

@@ -13,9 +13,9 @@ trait ValidationPrimitives {
     def asValidationFailure = failWithMessage(str)
   }
 
-  def NoValidation[T]: DataValidation[T] = (input: T) => validationSuccess[T](input)
+  def NoValidation[T]  = (input: T) => validationSuccess[T](input)
 
-  def requiresAll[T](validations: DataValidation[T]*): DataValidation[T] = (input: T) => {
+  def requiresAll[T](validations: DataValidationFunction[T]*): DataValidationFunction[T] = (input: T) => {
     val _validationResult: ValidationResult[T] =
       validations map {
         _.self(input)

@@ -2,13 +2,13 @@ package uk.co.pragmasoft.validate
 
 import org.scalatest.{Matchers, WordSpec}
 
-class BaseValidationsTest extends WordSpec with Matchers with TypeValidationSupport with BaseValidations {
+class BaseValidationsSpec extends WordSpec with Matchers with TypeValidationSupport with BaseValidations {
   case class StringPropTestClass(stringProp: String)
   case class BooleanPropTestClass(booleanProp: Boolean)
   case class OptionTestClass(optionProp: Option[String])
   case class SeqStringClass(seqStringProp: Seq[String])
 
-  val stringProp = typeProperty[StringPropTestClass]("String Property") extractedWith { _.stringProp }
+  val stringProp = typeProperty[StringPropTestClass]("String Property") definedBy { _.stringProp }
   val booleanProp = typeProperty("Boolean Property") { (obj: BooleanPropTestClass) => obj.booleanProp }
   val optionProp = typeProperty[OptionTestClass]( "Option Property" ) { (obj: OptionTestClass) => obj.optionProp }
   val seqStringProp = typeProperty("Seq[String] Property") { (obj: SeqStringClass) => obj.seqStringProp }
@@ -22,7 +22,7 @@ class BaseValidationsTest extends WordSpec with Matchers with TypeValidationSupp
     }
 
     "fail for empty string properties" in {
-      validation(StringPropTestClass("")) should be("String Property must not be empty".asValidationFailure)
+      validation(StringPropTestClass("")) should be("String Property must be a non-empty string".asValidationFailure)
     }
   }
 
