@@ -141,3 +141,9 @@ Validations are composed with the following operators:
 - `requiresAll( validation1, validation2, ... )` to require all validation to pass. This is simply a more compact and efficient way to combine all the validations with `and`
 - `all ( validation )` allows to apply a validation on type `T` on an object of type `K <: Iterable[T]`
 - `content ( validation )` allows to apply a validation on type `T` on an object of type `Option[T]`
+
+## License
+
+Copyright 2015 PragmaSoft Ltd.
+
+Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
