@@ -20,7 +20,9 @@ trait BaseValidations extends ValidationPrimitives {
 
   def beEmptyString = satisfyCriteria[String]("be empty")  { _.isEmpty }
 
-  def beNotEmptyIterable[T <: Iterable[_]] = satisfyCriteria("be a non empty iterable") { value: T => !value.isEmpty }
+  def beNotEmptyIterable[T <: Iterable[_]] = satisfyCriteria("be non empty") { value: T => !value.isEmpty }
+
+  def beEmptyIterable[T <: Iterable[_]] = satisfyCriteria("be empty") { value: T => value.isEmpty }
 
   def beDefined[T] = satisfyCriteria[Option[T]]("be defined")  { _.isDefined }
 
@@ -28,11 +30,18 @@ trait BaseValidations extends ValidationPrimitives {
 
   def beTrue = satisfyCriteria[Boolean]("be true") { value => value }
 
-  def beNotNegative[T : Numeric] = satisfyCriteria[T]("be not negative") {
+  def beNonNegative[T : Numeric] = satisfyCriteria[T]("be not negative") {
     value =>
       val myNumeric = implicitly[Numeric[T]]
 
       myNumeric.gteq(value, myNumeric.zero)
+  }
+
+  def bePositive[T : Numeric] = satisfyCriteria[T]("be positive") {
+    value =>
+      val myNumeric = implicitly[Numeric[T]]
+
+      myNumeric.gt(value, myNumeric.zero)
   }
 
   def matchRegexOnce(regex: Regex) =  satisfyCriteria[String](s"match regex $regex exactly once") {
@@ -47,7 +56,7 @@ trait BaseValidations extends ValidationPrimitives {
     _.contains(" ") == false
   }
 
-  def all[T]( validation: DataValidationFunction[T] ) = (value: Iterable[T]) => {
+  def all[T, Iter <: Iterable[T]]( validation: DataValidationFunction[T] ): DataValidationFunction[Iter] = (value: Iter) => {
     value.foldLeft(validationSuccess(value)) {  (validationStatus, elem) =>
       (validationStatus |@| validation(elem)) { (_, _) => value }
     }

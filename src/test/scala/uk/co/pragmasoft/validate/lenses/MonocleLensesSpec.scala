@@ -3,8 +3,30 @@ package uk.co.pragmasoft.validate.lenses
 import monocle.macros.Lenses
 import org.scalatest.{FlatSpec, Matchers}
 import uk.co.pragmasoft.validate._
-import uk.co.pragmasoft.validate.lenses.MonocleLenses._
 import scala.language.higherKinds
+
+object MonocleLensesSpec {
+
+  @Lenses("_")
+  case class TestClass(val attribute1: String, val attribute2: Int, val attribute3: Option[String], val attribute4: List[Int] = List.empty)
+
+  import uk.co.pragmasoft.validate.lenses.MonocleLenses._
+
+  implicit object testClassValidator extends TypeValidator[TestClass] with BaseValidations {
+
+    import TestClass._
+
+    override def validations = requiresAll(
+      "Attribute 1" definedBy _attribute1 must beNotEmpty,
+      "Attribute 2" definedBy _attribute2 must beNonNegative,
+      "Attribute 3" definedBy _attribute3 must { beDefined[String] and content(beValidAsRegex) },
+      "Attribute 4" definedBy _attribute4 must { beEmptyIterable[List[Int]] or all( beNonNegative[Int] ) }
+    )
+  }
+
+}
+
+import MonocleLensesSpec._
 
 class MonocleLensesSpec extends FlatSpec with Matchers {
 
@@ -12,22 +34,7 @@ class MonocleLensesSpec extends FlatSpec with Matchers {
 
   behavior of "Monocle Lenses Support"
 
-  @Lenses("_")
-  case class TestClass(val attribute1: String, val attribute2: Int, val attribute3: Option[String])
-
   it should "allow to use a monocle lens to create a validator" in {
-
-    implicit val validator = new TypeValidator[TestClass]  {
-      import TestClass._
-
-      val attribute3 = "Attribute 3" definedBy _attribute3
-
-      override def validations =
-        ( "Attribute 1" definedBy _attribute1 must beNotEmpty ) and ( "Attribute 2" definedBy _attribute2 must beNotNegative ) and (
-            attribute3 must ( beDefined[String] and content( beValidAsRegex ) )
-          )
-
-    }
 
     TestClass("attrib1", 1, Some(".+")).validated should equal (validationSuccess(TestClass("attrib1", 1, Some(".+"))))
     TestClass("attrib1", -1, Some(".+")).validated should equal (failWithMessage("Attribute 2 must be not negative"))

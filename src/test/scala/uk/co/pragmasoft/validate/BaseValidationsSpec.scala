@@ -35,7 +35,7 @@ class BaseValidationsSpec extends WordSpec with Matchers with TypeValidationSupp
     }
 
     "fail for empty iterables" in {
-      validation(SeqStringClass( Seq.empty )) should be ("Seq[String] Property must be a non empty iterable".asValidationFailure)
+      validation(SeqStringClass( Seq.empty )) should be ("Seq[String] Property must be non empty".asValidationFailure)
     }
   }
 

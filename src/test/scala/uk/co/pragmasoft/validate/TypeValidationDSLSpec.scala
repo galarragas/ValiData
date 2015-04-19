@@ -117,7 +117,6 @@ class TypeValidationDSLSpec extends FlatSpec with Matchers {
 
   }
 
-
   it should "support property assertion combination: OR" in {
     import BaseValidations._
 
@@ -126,6 +125,19 @@ class TypeValidationDSLSpec extends FlatSpec with Matchers {
     val validation = property1 must { beEmptyString or beOfMinimumLength(3) }
 
     validation(TestClass("", true)).isSuccess should be (true)
+    validation(TestClass("aa", true)).isFailure should be (true)
+    validation(TestClass("aaa", true)).isSuccess should be (true)
+
+  }
+
+  it should "support property assertion combination: requiresAll (more efficient way to express AND)" in {
+    import BaseValidations._
+
+    val property1 = typeProperty[TestClass]("Property 1") definedBy { _.property1 }
+
+    val validation = property1 must requiresAll( beNotEmpty, beOfMinimumLength(3) )
+
+    validation(TestClass("", true)).isFailure should be (true)
     validation(TestClass("aa", true)).isFailure should be (true)
     validation(TestClass("aaa", true)).isSuccess should be (true)
 
