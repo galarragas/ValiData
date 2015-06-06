@@ -1,4 +1,4 @@
-![Image](./ValiData.png =400x)
+<img src=ValiData.png width=400  />
 
 [![Build Status](https://travis-ci.org/galarragas/ValiData.svg)](http://travis-ci.org/galarragas/ValiData)
 
