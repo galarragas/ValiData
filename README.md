@@ -142,6 +142,17 @@ Validations are composed with the following operators:
 - `all ( validation )` allows to apply a validation on type `T` on an object of type `K <: Iterable[T]`
 - `content ( validation )` allows to apply a validation on type `T` on an object of type `Option[T]`
 
+## Including ValiData in Your Project
+
+Add conjars resolver and dependency (only available for 2.11 at the moment): 
+
+```scala
+resolvers ++= "Conjars Repo" at "http://conjars.org/repo"
+
+libraryDependencies += "uk.co.pragmasoft" %% "validata" % "0.1"
+```
+
+
 ## License
 
 Copyright 2015 PragmaSoft Ltd.
